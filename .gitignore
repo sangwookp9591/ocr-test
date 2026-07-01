@@ -18,3 +18,4 @@ app/.expo/
 
 # os
 .DS_Store
+app/.env
