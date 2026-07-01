@@ -1,0 +1,20 @@
+# secrets
+.env.local
+.google_key
+.openai_key
+*.pem
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# node / react-native (app/)
+app/node_modules/
+app/ios/Pods/
+app/ios/build/
+app/.expo/
+*.log
+
+# os
+.DS_Store

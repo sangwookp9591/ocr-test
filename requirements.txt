@@ -1,0 +1,7 @@
+openai
+fastapi
+uvicorn
+python-multipart
+# 전용 파서 프로바이더용 (VLM만 쓰면 생략 가능 — import는 호출 시점에만)
+boto3                    # AWS Textract AnalyzeExpense
+google-cloud-documentai  # Google Document AI Expense Parser

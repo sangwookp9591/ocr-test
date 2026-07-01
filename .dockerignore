@@ -1,0 +1,10 @@
+.venv
+app
+__pycache__
+*.pyc
+.openai_key
+.google_key
+.env*
+Dockerfile
+.dockerignore
+README.md

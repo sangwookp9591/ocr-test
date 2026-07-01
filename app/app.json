@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Receipt Scanner",
+    "slug": "receipt-scanner",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.receipt",
+      "infoPlist": {
+        "NSCameraUsageDescription": "영수증을 촬영해 자동 인식하는 데 카메라를 사용합니다.",
+        "NSLocalNetworkUsageDescription": "같은 WiFi의 인식 서버에 영수증 이미지를 전송하기 위해 로컬 네트워크를 사용합니다."
+      }
+    },
+    "android": {
+      "package": "com.example.receipt",
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
+    },
+    "plugins": [
+      "expo-dev-client",
+      [
+        "react-native-document-scanner-plugin",
+        {
+          "cameraPermission": "영수증을 촬영해 자동 인식하는 데 카메라를 사용합니다."
+        }
+      ],
+      "expo-asset"
+    ]
+  }
+}
