@@ -11,8 +11,10 @@ export interface ScanResult {
 type Src = CanvasImageSource | ImageData;
 /** 문서 코너 감지 (원본 좌표계). 실패 시 null */
 export declare function detect(src: Src): Quad | null;
-/** 흐림 점수 — ok 기준은 경험적 임계(라플라시안 분산 60) */
-export declare function quality(src: Src): {
+/** 흐림 점수. ok 판정 임계는 소비자 정책 — minBlur로 조정 (기본 60 = 경험값) */
+export declare function quality(src: Src, opts?: {
+    minBlur?: number;
+}): {
     blur: number;
     ok: boolean;
 };
@@ -24,5 +26,5 @@ export declare function warp(src: Src, quad: Quad, opts?: {
 export declare function scan(file: Blob, opts?: {
     maxSize?: number;
 }): Promise<ScanResult>;
-/** 라이브 카메라 코너 하이라이트. 반환 함수 호출 시 중단 */
+/** 라이브 카메라 코너 하이라이트 (~15fps 스로틀). 반환 함수 호출 시 중단 */
 export declare function highlight(video: HTMLVideoElement, overlay: HTMLCanvasElement): () => void;

@@ -39,6 +39,24 @@ function getDevice() {
     }
     return devicePromise;
 }
+// 셰이더/파이프라인/샘플러는 device·format 불변이므로 1회 생성 캐시 (호출마다 재컴파일 방지)
+let pipeCache = null;
+function getPipeline(device, format) {
+    if (!pipeCache || pipeCache.device !== device || pipeCache.format !== format) {
+        const module = device.createShaderModule({ code: WGSL });
+        pipeCache = {
+            device,
+            format,
+            pipeline: device.createRenderPipeline({
+                layout: 'auto',
+                vertex: { module, entryPoint: 'vs' },
+                fragment: { module, entryPoint: 'fs', targets: [{ format }] },
+            }),
+            sampler: device.createSampler({ magFilter: 'linear', minFilter: 'linear' }),
+        };
+    }
+    return pipeCache;
+}
 export function warpGpuAvailable() {
     return typeof navigator !== 'undefined' && !!navigator.gpu;
 }
@@ -70,17 +88,12 @@ export async function warpGpu(source, H, dstW, dstH) {
     ]);
     const ubuf = device.createBuffer({ size: uni.byteLength, usage: 0x40 | 0x8 }); // UNIFORM | COPY_DST
     device.queue.writeBuffer(ubuf, 0, uni);
-    const module = device.createShaderModule({ code: WGSL });
-    const pipeline = device.createRenderPipeline({
-        layout: 'auto',
-        vertex: { module, entryPoint: 'vs' },
-        fragment: { module, entryPoint: 'fs', targets: [{ format }] },
-    });
+    const { pipeline, sampler } = getPipeline(device, format);
     const bind = device.createBindGroup({
         layout: pipeline.getBindGroupLayout(0),
         entries: [
             { binding: 0, resource: { buffer: ubuf } },
-            { binding: 1, resource: device.createSampler({ magFilter: 'linear', minFilter: 'linear' }) },
+            { binding: 1, resource: sampler },
             { binding: 2, resource: tex.createView() },
         ],
     });
@@ -97,5 +110,7 @@ export async function warpGpu(source, H, dstW, dstH) {
     pass.end();
     device.queue.submit([enc.finish()]);
     await device.queue.onSubmittedWorkDone();
+    tex.destroy(); // GC 대기 없이 GPU 메모리 즉시 해제
+    ubuf.destroy();
     return canvas;
 }

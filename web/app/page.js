@@ -46,11 +46,9 @@ export default function Page() {
     if (!file || !file.type.startsWith('image/')) return;
     clearTimeout(successTimer.current); // 성공 오버레이 중 재스캔 시 이전 타이머가 result로 튀는 것 방지
     setProblem('');
-    // snapdoc: 문서 감지되면 원근 보정 크롭(1600px 캡) 사용, 아니면 기존 압축 경로
+    // snapdoc: 문서 감지되면 보정 캔버스, 아니면 원본 — 압축/인코딩(1600px, q0.7)은 compressImage 한 곳
     const scanned = await scanDoc(file).catch(() => null);
-    const blob = scanned?.quad
-      ? await new Promise((r) => scanned.canvas.toBlob(r, 'image/jpeg', 0.7))
-      : await compressImage(file);
+    const blob = await compressImage(scanned?.canvas ?? file);
     setImage((prev) => {
       if (prev) URL.revokeObjectURL(prev); // 이전 스캔 blob 메모리 해제
       return URL.createObjectURL(blob);
