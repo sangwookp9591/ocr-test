@@ -27,6 +27,21 @@ POST /receipt  ─▶ [server.py] ocr_test.extract() ─▶ OpenAI Vision(Struct
 
 ---
 
+## 빠른 시작 (dev.sh)
+
+아래 1~3단계(IP 매칭 → 서버 실행 → 앱 빌드)를 매번 손으로 하기 귀찮으면 한 번에:
+
+```bash
+bash dev.sh                    # 기본 기기(Sangwookphone)로 실행
+bash dev.sh <다른-기기-UDID>     # 다른 실기기 지정 시
+```
+
+현재 LAN IP 감지 → `app/.env` 반영 → 8000/8081 포트 기존 프로세스 정리 후 서버 재시작 →
+`npx expo run:ios --device`까지 순서대로 실행한다. 각 단계가 실제로 뭘 하는지, 실패 시 원인은
+아래 1~3절 참고.
+
+---
+
 ## 1. 서버 실행
 
 ### 의존성 설치 (최초 1회)
