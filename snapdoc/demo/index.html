@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>snapdoc demo</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 720px; margin: 24px auto; padding: 0 16px; background: #F6F5F1; color: #17130E; }
+  h1 { letter-spacing: -0.5px; } h1 small { color: #0B8457; font-size: 14px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
+  button { padding: 10px 18px; border: 0; border-radius: 10px; background: #0E9F6E; color: #fff; font-weight: 700; cursor: pointer; }
+  #stage { position: relative; display: inline-block; }
+  video, canvas.out { max-width: 100%; border-radius: 12px; border: 1px solid #EBE8E1; background: #fff; }
+  #overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #meta { font-size: 13px; color: #8C867B; }
+</style>
+</head>
+<body>
+<h1>snapdoc <small>zero-dep · WebGPU-accelerated</small></h1>
+<div class="row">
+  <button id="pick">Scan image</button>
+  <button id="cam">Live camera</button>
+  <input id="file" type="file" accept="image/*" hidden>
+</div>
+<div id="stage"></div>
+<div id="meta"></div>
+<div id="result"></div>
+<script type="module">
+import { scan, highlight, warpGpuAvailable } from '../dist/index.js';
+
+const stage = document.getElementById('stage');
+const meta = document.getElementById('meta');
+const result = document.getElementById('result');
+const file = document.getElementById('file');
+let stopCam = null;
+
+document.getElementById('pick').onclick = () => file.click();
+file.onchange = async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const t0 = performance.now();
+  const r = await scan(f);
+  const ms = (performance.now() - t0).toFixed(1);
+  r.canvas.className = 'out';
+  result.replaceChildren(r.canvas);
+  meta.textContent = `scan ${ms}ms · quad ${r.quad ? 'detected' : 'none'} · blur ${r.blur.toFixed(0)} · gpu ${warpGpuAvailable() ? 'on' : 'off'}`;
+};
+
+document.getElementById('cam').onclick = async () => {
+  if (stopCam) { stopCam(); stopCam = null; stage.replaceChildren(); return; }
+  const video = document.createElement('video');
+  video.playsInline = true;
+  const overlay = document.createElement('canvas');
+  overlay.id = 'overlay';
+  video.srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+  await video.play();
+  stage.replaceChildren(video, overlay);
+  stopCam = highlight(video, overlay);
+};
+</script>
+</body>
+</html>

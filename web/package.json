@@ -5,7 +5,8 @@
     "dev": "next dev -p 3005",
     "build": "next build",
     "start": "next start -p 3005",
-    "test": "node lib/compress.test.mjs"
+    "test": "node lib/compress.test.mjs",
+    "sync-snapdoc": "rm -rf lib/snapdoc && cp -r ../snapdoc/dist lib/snapdoc"
   },
   "dependencies": {
     "next": "^15.0.0",

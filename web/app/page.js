@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { compressImage } from '../lib/compress';
+import { scan as scanDoc } from '../lib/snapdoc/index.js';
 
 // 서버 PROVIDERS 키와 일치해야 함 (app/App.js와 동일)
 const PROVIDERS = [
@@ -45,7 +46,11 @@ export default function Page() {
     if (!file || !file.type.startsWith('image/')) return;
     clearTimeout(successTimer.current); // 성공 오버레이 중 재스캔 시 이전 타이머가 result로 튀는 것 방지
     setProblem('');
-    const blob = await compressImage(file);
+    // snapdoc: 문서 감지되면 원근 보정 크롭(1600px 캡) 사용, 아니면 기존 압축 경로
+    const scanned = await scanDoc(file).catch(() => null);
+    const blob = scanned?.quad
+      ? await new Promise((r) => scanned.canvas.toBlob(r, 'image/jpeg', 0.7))
+      : await compressImage(file);
     setImage((prev) => {
       if (prev) URL.revokeObjectURL(prev); // 이전 스캔 blob 메모리 해제
       return URL.createObjectURL(blob);
