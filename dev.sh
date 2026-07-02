@@ -15,11 +15,17 @@ echo "▶ app/.env: $(cat app/.env)"
 # 2) 기존 서버/번들러 정리 후 백엔드 재시작
 lsof -ti:8000 2>/dev/null | xargs kill -9 2>/dev/null
 lsof -ti:8081 2>/dev/null | xargs kill -9 2>/dev/null
+lsof -ti:3005 2>/dev/null | xargs kill -9 2>/dev/null
 nohup bash start.sh > /tmp/ocr-backend.log 2>&1 &
 echo "▶ 백엔드 서버 시작 (PID $!, 로그: /tmp/ocr-backend.log)"
 sleep 2
 
-# 3) 실기기 재빌드/실행 (Metro도 같이 뜸)
+# 3) 웹 (Next.js dev, 3005)
+[ -d web/node_modules ] || (cd web && npm install)
+(cd web && nohup npm run dev > /tmp/ocr-web.log 2>&1 &)
+echo "▶ 웹: http://$IP:3005 (로그: /tmp/ocr-web.log)"
+
+# 4) 실기기 재빌드/실행 (Metro도 같이 뜸)
 DEVICE_ID="${1:-00008120-001424E41144C01E}"
 cd app
 npx expo run:ios --device "$DEVICE_ID"
