@@ -1,0 +1,14 @@
+services:
+  api:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      - OPENAI_API_KEY
+      - GOOGLE_API_KEY
+    env_file:
+      - path: .env.local
+        required: false
+  web:
+    build: ./web
+    ports: ["3005:3005"]
+    depends_on: [api]
