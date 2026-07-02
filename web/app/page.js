@@ -25,12 +25,13 @@ export default function Page() {
   const [history, setHistory] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef(null);
+  const successTimer = useRef(null);
 
   const titleOf = (json) => {
     const r = json.receipts?.[0];
     if (!r) return '결과 없음';
-    if (r.merchant) return r.total != null ? `${r.merchant} · ${r.total.toLocaleString()}원` : r.merchant;
-    if (r.total != null) return `${r.total.toLocaleString()}원`;
+    if (r.merchant) return r.total != null ? `${r.merchant} · ${fmt(r.total)}원` : r.merchant;
+    if (r.total != null) return `${fmt(r.total)}원`;
     return r.raw_text ? '텍스트' : '결과 없음';
   };
   const addHistory = (partial) => setHistory((h) => [{
@@ -42,9 +43,13 @@ export default function Page() {
 
   async function submit(file) {
     if (!file || !file.type.startsWith('image/')) return;
+    clearTimeout(successTimer.current); // 성공 오버레이 중 재스캔 시 이전 타이머가 result로 튀는 것 방지
     setProblem('');
     const blob = await compressImage(file);
-    setImage(URL.createObjectURL(blob));
+    setImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev); // 이전 스캔 blob 메모리 해제
+      return URL.createObjectURL(blob);
+    });
     setMode('analyzing');
     try {
       const form = new FormData();
@@ -65,7 +70,7 @@ export default function Page() {
         setMode('problem');
       } else {
         setMode('success');
-        setTimeout(() => setMode('result'), 1250);
+        successTimer.current = setTimeout(() => setMode('result'), 1250);
       }
     } catch (e) {
       addHistory({ model: null, ms: null, status: 'fail', title: (e.message ?? String(e)).split('\n')[0] });

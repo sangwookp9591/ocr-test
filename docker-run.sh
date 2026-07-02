@@ -4,8 +4,9 @@
 #   bash docker-run.sh api      # 백엔드만
 set -e
 cd "$(dirname "$0")"
-[ -s .openai_key ] && export OPENAI_API_KEY="$(tr -d '[:space:]' < .openai_key)"
-[ -s .google_key ] && export GOOGLE_API_KEY="$(tr -d '[:space:]' < .google_key)"
-IP=$(ipconfig getifaddr en0 2>/dev/null || echo localhost)
+# 키 로딩 규칙은 start.sh와 동일(이미 설정된 env 우선)
+[ -z "$OPENAI_API_KEY" ] && [ -s .openai_key ] && export OPENAI_API_KEY="$(tr -d '[:space:]' < .openai_key)"
+[ -z "$GOOGLE_API_KEY" ] && [ -s .google_key ] && export GOOGLE_API_KEY="$(tr -d '[:space:]' < .google_key)"
+IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo localhost)
 echo "▶ api http://$IP:8000 · web http://$IP:3005  (Ctrl+C로 종료)"
 exec docker compose up --build "$@"
