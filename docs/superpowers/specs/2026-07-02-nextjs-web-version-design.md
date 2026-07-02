@@ -12,7 +12,7 @@
 - **Next.js 15 (App Router), JavaScript** — RN 앱과 같은 JS. UI 라이브러리 없음, 일반 CSS.
 - **백엔드 연동: rewrite 프록시.** `next.config.mjs`의 rewrite로 `/receipt` →
   `RECEIPT_API`(기본 `http://localhost:8000`)로 프록시. server.py 무수정, CORS 불필요.
-  폰은 `http://<맥-LAN-IP>:3000` 하나만 알면 된다.
+  폰은 `http://<맥-LAN-IP>:3005` 하나만 알면 된다.
 
 ```
 web/
@@ -61,14 +61,14 @@ web/
 
 ## 실행 통합 (sh + Docker 양쪽)
 
-**sh (개발용):** `dev.sh`에 웹 기동 추가 — 백엔드 시작 후 `web/`에서 `next dev`(3000)를
+**sh (개발용):** `dev.sh`에 웹 기동 추가 — 백엔드 시작 후 `web/`에서 `next dev`(3005)를
 백그라운드로 띄우고, 마지막에 기존대로 `expo run:ios` 실행. 한 번에 서버+웹+앱 모두 기동.
-포트 3000도 기동 전 정리 대상에 포함.
+포트 3005도 기동 전 정리 대상에 포함.
 
 **Docker (배포/무설치 실행):** `web/Dockerfile`(node 알파인, `next build` + `next start`) 추가,
 루트에 `docker-compose.yml`로 두 서비스 구성:
 - `api`: 기존 Dockerfile (8000)
-- `web`: web/Dockerfile (3000), `RECEIPT_API=http://api:8000` — compose 내부 네트워크로 연결
+- `web`: web/Dockerfile (3005), `RECEIPT_API=http://api:8000` — compose 내부 네트워크로 연결
 
 `docker-run.sh`는 `docker compose up --build`를 부르도록 확장 (키 주입 방식은 기존 그대로:
 `.openai_key`/`.google_key`/`.env.local`). 기존 단독 백엔드 실행도 `docker compose up api`로 가능.
