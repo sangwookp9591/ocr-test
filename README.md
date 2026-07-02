@@ -36,9 +36,9 @@ bash dev.sh                    # 기본 기기(Sangwookphone)로 실행
 bash dev.sh <다른-기기-UDID>     # 다른 실기기 지정 시
 ```
 
-현재 LAN IP 감지 → `app/.env` 반영 → 8000/8081 포트 기존 프로세스 정리 후 서버 재시작 →
-`npx expo run:ios --device`까지 순서대로 실행한다. 각 단계가 실제로 뭘 하는지, 실패 시 원인은
-아래 1~3절 참고.
+현재 LAN IP 감지 → `app/.env` 반영 → 8000/8081/3005 포트 기존 프로세스 정리 후 서버 재시작 →
+웹(3005) 기동 → `npx expo run:ios --device`까지 순서대로 실행한다. 각 단계가 실제로 뭘 하는지,
+실패 시 원인은 아래 1~3절 참고.
 
 ---
 
@@ -140,6 +140,20 @@ cd app && npm start          # expo start --dev-client
 ```
 
 > `.env`를 바꿨으면 `npm start` 재시작만으론 부족할 수 있음 — 캐시 클리어 `npx expo start --dev-client -c`.
+
+---
+
+## 3.5 웹버전 (Next.js, 포트 3005)
+
+앱과 동일한 A/B 테스트 하니스의 브라우저판. 데스크톱은 업로드/드래그&드롭, 모바일 브라우저는 카메라.
+
+```bash
+cd web && npm install && npm run dev    # http://localhost:3005
+```
+
+- 백엔드 연결은 Next rewrite 프록시(`/receipt` → `RECEIPT_API`, 기본 `localhost:8000`) — CORS·IP 설정 불필요.
+- 폰에서 쓸 때: `http://<PC-LAN-IP>:3005` 하나만 열면 됨.
+- Docker로 전체 실행: `bash docker-run.sh` (api 8000 + web 3005, compose).
 
 ---
 
